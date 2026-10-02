@@ -5,6 +5,8 @@ from data import lineToTensor
 
 # 训练函数
 def train(rnn, category_tensor, line_tensor, criterion, learning_rate=0.005):
+    if line_tensor.size(0) == 0:
+        raise ValueError("Cannot train on an empty name")
     hidden = rnn.initHidden()
     rnn.zero_grad()
 
@@ -15,8 +17,11 @@ def train(rnn, category_tensor, line_tensor, criterion, learning_rate=0.005):
     loss.backward()
 
     # 更新模型参数
-    for p in rnn.parameters():
-        p.data.add_(p.grad.data, alpha=-learning_rate)
+    with torch.no_grad():
+        for p in rnn.parameters():
+            # A one-character name does not use the recurrent hidden projection.
+            if p.grad is not None:
+                p.add_(p.grad, alpha=-learning_rate)
 
     return output, loss.item()
 

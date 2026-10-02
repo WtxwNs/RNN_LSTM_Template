@@ -62,3 +62,14 @@
 (-1.59) Japanese
 (-1.71) Polish
 
+
+## 运行和测试
+
+将名字文件放到 `data/names/*.txt` 后运行 `python main.py`。
+LSTM 独立示例运行 `python __init__.py`。导入模块不会启动训练。
+
+已安装上述依赖后，运行轻量回归测试（不下载数据、不执行完整训练）：
+
+```bash
+python -m unittest discover -s tests -v
+```
