@@ -29,21 +29,27 @@ def load_data(path='data/names/*.txt'):
     all_categories = []
 
     def readLines(filename):
-        lines = open(filename, encoding='utf-8').read().strip().split('\n')
-        return [unicodeToAscii(line) for line in lines]
+        with open(filename, encoding='utf-8') as handle:
+            lines = [unicodeToAscii(line.strip()) for line in handle]
+        return [line for line in lines if line]
 
-    for filename in findFiles(path):
+    for filename in sorted(findFiles(path)):
         category = os.path.splitext(os.path.basename(filename))[0]
-        all_categories.append(category)
         lines = readLines(filename)
-        category_lines[category] = lines
+        if lines:
+            all_categories.append(category)
+            category_lines[category] = lines
 
+    if not all_categories:
+        raise ValueError(f"No non-empty name categories found for {path!r}")
     return category_lines, all_categories
 
 
 # 将每个字母转换为张量
 def letterToIndex(letter):
-    return all_letters.find(letter)
+    if len(letter) != 1 or letter not in all_letters:
+        raise ValueError(f"Unsupported character: {letter!r}")
+    return all_letters.index(letter)
 
 
 def letterToTensor(letter):
@@ -54,6 +60,8 @@ def letterToTensor(letter):
 
 # 将名字转换为张量
 def lineToTensor(line):
+    if not line:
+        raise ValueError("A name must contain at least one supported character")
     tensor = torch.zeros(len(line), 1, n_letters)
     for li, letter in enumerate(line):
         tensor[li][0][letterToIndex(letter)] = 1

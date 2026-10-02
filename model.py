@@ -16,4 +16,4 @@ class RNN(nn.Module):
         return output, hidden
 
     def initHidden(self):
-        return torch.zeros(1, self.hidden_size)
+        return self.i2h.weight.new_zeros(1, self.hidden_size)
